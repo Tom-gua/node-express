@@ -70,8 +70,6 @@ const httpOptions = (request) => {
         path: request.originalUrl,
     }
     const options = Object.assign({}, baseOptions, pathOptions)
-    // 把浏览器发送的请求的 headers 全部添加到 options 中,
-    // 避免出现漏掉某些关键 headers(如 transfer-encoding, connection 等) 导致出 bug 的情况
     Object.keys(request.headers).forEach((k) => {
         options.headers[k] = request.headers[k]
     })
@@ -92,13 +90,8 @@ app.all('/api/*', (request, response) => {
     // http.request 会把数据发送到 api server
     // http.request 也会返回一个请求对象
     const r = client.request(options, (res) => {
-        // res.statusCode 是 api server 返回的状态码
-        // 保持 express response 的状态码和 api server 的状态码一致
-        // 避免出现返回 304, 导致 response 出错
         response.status(res.statusCode)
         log('debug res', res.headers, res.statusCode)
-        // 回调里的 res 是 api server 返回的响应
-        // 将响应的 headers 原样设置到 response(这个是 express 的 response) 中
         Object.keys(res.headers).forEach((k) => {
             const v = res.headers[k]
             response.setHeader(k, v)
@@ -135,16 +128,12 @@ app.all('/api/*', (request, response) => {
         // 把 body 里的数据发送到 api server
         r.write(body)
     }
-
-    // 结束发送请求, 类似我们最初讲的 socket.destroy()
     r.end()
 })
 
 // 把逻辑放在单独的函数中, 这样可以方便地调用
 // 指定了默认的 host 和 port, 因为用的是默认参数, 当然可以在调用的时候传其他的值
 const run = (port=3000, host='') => {
-    // app.listen 方法返回一个 http.Server 对象, 这样使用更方便
-    // 实际上这个东西的底层是我们以前写的 net.Server 对象
     const server = app.listen(port, host, () => {
         // 非常熟悉的方法
         const address = server.address()
