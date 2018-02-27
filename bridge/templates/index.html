@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>前后端分离竞技场</title>
+</head>
+<body>
+前后端分离竞技场
+<button class="button">点击跳转路由页面</button>
+<button class="button2">2</button>
+<!-- <script src="/static/ajax.js"></script> -->
+<script>
+    const main = function() {
+        window.addEventListener("popstate", function(e) {
+            var state = e.state;
+            // state 就是 pushState 的第一个参数
+            console.log('pop state', state)
+        })
+        var btn = document.querySelector('.button')
+        btn.addEventListener('click', function() {
+            var state = {
+                page: "settings"
+            }
+            history.pushState(null, "settings", "/settings")
+        })
+
+        var btn = document.querySelector('.button2')
+        btn.addEventListener('click', function() {
+            var state = {
+                page: "qwe"
+            }
+            history.pushState(null, "qwe", "/qwe")
+        })
+    }
+    main()
+</script>
+</body>
+</html>
